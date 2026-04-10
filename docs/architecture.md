@@ -20,17 +20,17 @@
 |-------|------|-----------|
 | **Game** | id, date, status | Партия игры |
 | **Player** | id, name | Игрок (существует отдельно от партий) |
-| **Move** | id, playerid, turnNumber, diceMove, diceWeather, stateBefore, stateAfter, isValid | Один ход с состоянием до и после |
+| **Move** | id, playerid, turnNumber, dice1, dice2, stateBefore, stateAfter, isValid | Один ход с состоянием до и после |
 | **PlayerState** | position, energy, condition, water | Ресурсы игрока в данный момент |
 
 ### 3. Бизнес-логика
 
 **GameRules** - применяет правила игры к состоянию игрока:
-- applyWeather() - жара, дождь, ветер, обычная погода, шторм
-- applyMovement() - движение по выпавшему числу
+- applyWeather(dice1) - жара, дождь, ветер, обычная погода, шторм
+- applyMovement(dice1, dice2) - движение по выпавшему числу
 - applyEnergyCost() - расход энергии за ход
-- applyEvent() - случайные события (родник, прокол колеса, починка, спуск, спринт)
-- applyRest() - отдых (восстановление ресурсов: +2 энергии, +1 состояние, или кинуть кубик и получить воды столько, сколько выпало)
+- applyEvent(dice2) - случайные события (родник, прокол колеса, починка, спуск, спринт)
+- applyRest() - отдых (игрок выбирает одно: +2 энергии, +1 состояние или +3 воды)
 - canRest() - проверка, есть ли что восстанавливать (энергия, состояние или вода не на максимуме)
 - getWinner() - определение победителя
 
@@ -56,7 +56,8 @@
 
 ### Валидация одного хода
 - Администратор вводит данные хода в систему
-(игрок, кубик движения, кубик погоды, кубик события, тип хода)
+  
+игрок, dice1 (погода), dice2 (событие), тип хода (движение или отдых)
 
 
 - GameManager получает ход и текущее состояние игры (GameState)
@@ -74,13 +75,13 @@
 
 - MoveValidator вызывает GameRules для расчёта ожидаемого состояния
 
-GameRules.applyWeather() - применяет погоду
+GameRules.applyWeather(dice1) — применяет погоду
 
-GameRules.applyMovement() - рассчитывает движение
+GameRules.applyMovement(dice1, dice2) — рассчитывает движение (dice1 + dice2)
+
+GameRules.applyEvent(dice2) — применяет событие
 
 GameRules.applyEnergyCost() - списывает энергию
-
-GameRules.applyEvent() - применяет случайное событие
 
 
 - MoveValidator сравнивает:
