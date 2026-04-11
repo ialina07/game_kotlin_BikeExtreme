@@ -61,13 +61,17 @@
 игрок, dice1 (погода), dice2 (событие), тип хода (движение или отдых)
 
 
-- GameManager получает ход и текущее состояние игры (GameState)
+- GameManager получает ход. У него уже есть:
+   - кто сейчас ходит
+   - текущие ресурсы всех игроков
 
 
-- GameManager вызывает MoveValidator.validate(move, currentState)
+- GameManager вызывает MoveValidator.validate()
 
 
 - MoveValidator проверяет:
+
+~ тот ли игрок сейчас ходит (проверка очереди)
   
 ~ соответствует ли ход правилам (вызывает GameRules)
 
@@ -78,9 +82,9 @@
 
 GameRules.applyWeather(dice1) — применяет погоду
 
-GameRules.applyMovement(dice1, dice2) — рассчитывает движение (dice1 + dice2)
-
 GameRules.applyEvent(dice2) — применяет событие
+
+GameRules.applyMovement(dice1, dice2) — рассчитывает движение (dice1 + dice2)
 
 GameRules.applyEnergyCost() - списывает энергию
 
