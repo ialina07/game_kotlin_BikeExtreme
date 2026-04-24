@@ -12,4 +12,8 @@ interface GameRepository {
     fun getMoves(gameId: UUID): List<Move>
     fun getAllGames(): List<Game>
     fun getGamesByPlayer(playerId: UUID): List<Game>
+    fun savePlayer(player: Player)
+    fun getPlayer(id: UUID): Player?
+    fun getPlayerByName(name: String): Player?
+    fun getAllPlayers(): List<Player>
 }

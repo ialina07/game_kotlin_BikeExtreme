@@ -2,11 +2,13 @@ package com.bikeextreme.repository
 
 import com.bikeextreme.domain.Game
 import com.bikeextreme.domain.Move
+import com.bikeextreme.domain.Player
 import java.util.UUID
 
 class InMemoryGameRepository : GameRepository {
     private val games = mutableMapOf<UUID, Game>()
     private val moves = mutableMapOf<UUID, MutableList<Move>>()
+    private val players = mutableMapOf<UUID, Player>()
 
     override fun saveGame(game: Game) {
         games[game.id] = game
@@ -54,7 +56,30 @@ class InMemoryGameRepository : GameRepository {
                 result.add(game)
             }
         }
+        return result
+    }
 
+    override fun savePlayer(player: Player) {
+        players[player.id] = player
+    }
+
+    override fun getPlayer(id: UUID): Player? {
+        return players[id]
+    }
+
+    override fun getPlayerByName(name: String): Player? {
+        for (player in players.values) {
+            if (player.name.equals(name, ignoreCase = true))
+                return player
+        }
+        return null
+    }
+
+    override fun getAllPlayers(): List<Player> {
+        val result = mutableListOf<Player>()
+        for (player in players.values) {
+            result.add(player)
+        }
         return result
     }
 }

@@ -8,5 +8,6 @@ data class Game (
     val date: LocalDateTime = LocalDateTime.now(),
     val status: String = "NOT_STARTED",
     val isFinished: Boolean = false,
-    val playerIds: List<UUID> = emptyList()
+    val playerIds: List<UUID> = emptyList(),
+    var winnerId: UUID? = null
 )

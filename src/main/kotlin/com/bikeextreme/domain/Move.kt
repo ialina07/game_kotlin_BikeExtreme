@@ -6,8 +6,8 @@ data class Move(
     val id: UUID = UUID.randomUUID(),
     val gameId: UUID,
     val playerId: UUID,
-    val TurnNumber: Int,
-    val  dice1: Int, // погода
+    val turnNumber: Int,
+    val dice1: Int, // погода
     val dice2: Int, // событие
     val moveType: String,
     val restType: String?,
