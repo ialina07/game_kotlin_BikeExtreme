@@ -55,7 +55,6 @@ class ReplayService(
                 dice2 = move.dice2,
                 moveType = move.moveType,
                 restType = move.restType,
-                tailwindBonus = false
             )
 
             val expectedState = phaseExecutor.executePhases(move.stateBefore, context)

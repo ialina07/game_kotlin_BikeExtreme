@@ -45,7 +45,6 @@ class MoveValidator(
             dice2 = move.dice2,
             moveType = move.moveType,
             restType = move.restType,
-            tailwindBonus = false,
             movementBonus = 0
         )
 
