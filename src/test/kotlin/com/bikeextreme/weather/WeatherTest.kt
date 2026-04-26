@@ -2,8 +2,8 @@ package com.bikeextreme.weather
 
 import com.bikeextreme.domain.PlayerState
 import com.bikeextreme.game.PhaseContext
+import org.junit.Assert
 import org.junit.Test
-import org.junit.Assert.*
 
 class WeatherTest {
 
@@ -21,8 +21,8 @@ class WeatherTest {
         val weather = HeatWeather()
         val result = weather.apply(state, context)
 
-        assertEquals(2, result.water)
-        assertEquals(5, result.energy)
+        Assert.assertEquals(2, result.water)
+        Assert.assertEquals(5, result.energy)
     }
 
     @Test
@@ -31,8 +31,8 @@ class WeatherTest {
         val weather = HeatWeather()
         val result = weather.apply(state, context)
 
-        assertEquals(0, result.water)
-        assertEquals(4, result.energy)
+        Assert.assertEquals(0, result.water)
+        Assert.assertEquals(4, result.energy)
     }
 
     @Test
@@ -41,7 +41,7 @@ class WeatherTest {
         val weather = RainWeather()
         val result = weather.apply(state, context)
 
-        assertEquals(4, result.condition)
+        Assert.assertEquals(4, result.condition)
     }
 
     @Test
@@ -50,10 +50,10 @@ class WeatherTest {
         val weather = NormalWeather()
         val result = weather.apply(state, context)
 
-        assertEquals(state.position, result.position)
-        assertEquals(state.water, result.water)
-        assertEquals(state.condition, result.condition)
-        assertEquals(state.energy, result.energy)
+        Assert.assertEquals(state.position, result.position)
+        Assert.assertEquals(state.water, result.water)
+        Assert.assertEquals(state.condition, result.condition)
+        Assert.assertEquals(state.energy, result.energy)
     }
 
     @Test
@@ -63,7 +63,7 @@ class WeatherTest {
         val result = weather.apply(state, context)
 
         // ветер не меняет состояние, только дает бонус в MovementPhase
-        assertEquals(10, result.position)
+        Assert.assertEquals(10, result.position)
     }
 
     @Test
@@ -72,7 +72,7 @@ class WeatherTest {
         val weather = StormWeather()
         val result = weather.apply(state, context)
 
-        assertEquals(3, result.condition)
+        Assert.assertEquals(3, result.condition)
     }
 
     @Test
@@ -81,20 +81,20 @@ class WeatherTest {
 
         val rain = RainWeather()
         val result1 = rain.apply(state, context)
-        assertEquals(0, result1.condition)
+        Assert.assertEquals(0, result1.condition)
 
         val storm = StormWeather()
         val result2 = storm.apply(state, context)
-        assertEquals(0, result2.condition)
+        Assert.assertEquals(0, result2.condition)
 
         val heat = HeatWeather()
         val result3 = heat.apply(state, context)
-        assertEquals(0, result3.energy)
+        Assert.assertEquals(0, result3.energy)
     }
 
     @Test
     fun testTailwindWeatherExtraCells() {
         val weather = TailwindWeather()
-        assertEquals(2, weather.extraCells())
+        Assert.assertEquals(2, weather.extraCells())
     }
 }
