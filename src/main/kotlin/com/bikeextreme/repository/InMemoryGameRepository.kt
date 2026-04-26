@@ -48,16 +48,8 @@ class InMemoryGameRepository : GameRepository {
     }
 
     override fun getGamesByPlayer(playerId: UUID): List<Game> {
-        val allGames = games.values
-        val result = mutableListOf<Game>()
-
-        for (game in allGames) {
-            if (game.playerIds.contains(playerId)) {
-                result.add(game)
-            }
+            return games.values.filter { it.playerIds.contains(playerId) }.toList()
         }
-        return result
-    }
 
     override fun savePlayer(player: Player) {
         players[player.id] = player
@@ -69,17 +61,12 @@ class InMemoryGameRepository : GameRepository {
 
     override fun getPlayerByName(name: String): Player? {
         for (player in players.values) {
-            if (player.name.equals(name, ignoreCase = true))
+            if (player.name.equals(name, ignoreCase = true)) {
                 return player
+            }
         }
         return null
     }
 
-    override fun getAllPlayers(): List<Player> {
-        val result = mutableListOf<Player>()
-        for (player in players.values) {
-            result.add(player)
-        }
-        return result
-    }
+    override fun getAllPlayers(): List<Player> = players.values.toList()
 }

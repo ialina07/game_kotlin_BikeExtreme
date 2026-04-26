@@ -54,25 +54,19 @@ class StatisticsService(
 
     fun getLeaderboard(): List<PlayerRanking> {
         val allPlayers = repository.getAllPlayers()
-        val rankings = mutableListOf<PlayerRanking>()
-
-        for (player in allPlayers) {
-            val stats = getPlayerStats(player.id)
-            if (stats != null && stats.totalGames > 0) {
-                rankings.add(
-                    PlayerRanking(
-                        playerId = player.id,
-                        playerName = player.name,
-                        wins = stats.wins,
-                        winRate = stats.winRate
-                    )
+        val rankings = allPlayers.mapNotNull { player ->
+            getPlayerStats(player.id)?.takeIf  { it.totalGames > 0 }?.let { stats ->
+                PlayerRanking(
+                    playerId = player.id,
+                    playerName = player.name,
+                    wins = stats.wins,
+                    winRate = stats.winRate
                 )
             }
         }
 
         // сортируем по убыванию побед
-        rankings.sortByDescending { element -> element.wins}
-        return rankings
+        return rankings.sortedByDescending { it.wins }
     }
 
     fun getWinRate(playerName: String): Double? {
@@ -90,12 +84,6 @@ class StatisticsService(
     }
 
     private fun countWins(playerId: UUID, games: List<Game>): Int {
-        var wins = 0
-        for (game in games) {
-            if (game.winnerId == playerId) {
-                wins = wins + 1
-            }
-        }
-        return wins
+        return games.count { it.winnerId == playerId }
     }
 }

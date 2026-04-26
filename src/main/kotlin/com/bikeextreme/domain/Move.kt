@@ -1,6 +1,7 @@
 package com.bikeextreme.domain
 
 import java.util.UUID
+import com.bikeextreme.game.RestType
 
 data class Move(
     val id: UUID = UUID.randomUUID(),
@@ -10,7 +11,7 @@ data class Move(
     val dice1: Int, // погода
     val dice2: Int, // событие
     val moveType: String,
-    val restType: String?,
+    val restType: RestType?,
     val stateBefore: PlayerState,
     val stateAfter: PlayerState,
     val isValid: Boolean = true

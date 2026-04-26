@@ -5,7 +5,9 @@ import com.bikeextreme.game.PhaseContext
 
 class TailwindWeather : Weather {
     override fun apply(state: PlayerState, context: PhaseContext): PlayerState {
-        context.tailwindBonus = true
+        context.movementBonus += extraCells()
         return state
     }
+
+    fun extraCells(): Int = 2
 }

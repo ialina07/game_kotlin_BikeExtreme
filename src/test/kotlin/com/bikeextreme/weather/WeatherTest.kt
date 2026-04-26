@@ -12,7 +12,6 @@ class WeatherTest {
         dice2 = 1,
         moveType = "move",
         restType = null,
-        tailwindBonus = false,
         movementBonus = 0
     )
 
@@ -65,7 +64,6 @@ class WeatherTest {
 
         // ветер не меняет состояние, только дает бонус в MovementPhase
         assertEquals(10, result.position)
-        assertTrue(context.tailwindBonus)
     }
 
     @Test
@@ -92,5 +90,11 @@ class WeatherTest {
         val heat = HeatWeather()
         val result3 = heat.apply(state, context)
         assertEquals(0, result3.energy)
+    }
+
+    @Test
+    fun testTailwindWeatherExtraCells() {
+        val weather = TailwindWeather()
+        assertEquals(2, weather.extraCells())
     }
 }

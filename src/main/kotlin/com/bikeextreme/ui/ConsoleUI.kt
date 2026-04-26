@@ -2,6 +2,7 @@ package com.bikeextreme.ui
 
 import com.bikeextreme.domain.Move
 import com.bikeextreme.game.GameManager
+import com.bikeextreme.game.RestType
 import com.bikeextreme.repository.GameRepository
 import com.bikeextreme.statistics.ReplayService
 import com.bikeextreme.statistics.StatisticsService
@@ -90,10 +91,7 @@ class ConsoleUI(
         }
 
         val player = repository.getPlayer(currentPlayerId)
-        var playerName = ""
-        if (player != null) {
-            playerName = player.name
-        }
+        val playerName = player?.name ?: ""
 
         println("Сейчас ходит: $playerName")
         println("Введите данные хода:")
@@ -128,11 +126,17 @@ class ConsoleUI(
             return
         }
 
-        var restType: String? = null
+        var restType: RestType? = null
         if (moveType == "rest") {
             print("  тип отдыха (energy/condition/water): ")
-            restType = readln()
-            if (restType != "energy" && restType != "condition" && restType != "water") {
+            val restTypeInput = readln()
+            restType = when (restTypeInput.lowercase()) {
+                "energy" -> RestType.ENERGY
+                "condition" -> RestType.CONDITION
+                "water" -> RestType.WATER
+                else -> null
+            }
+            if (restType == null) {
                 println("Ошибка: тип отдыха должен быть 'energy', 'condition' или 'water'")
                 return
             }
@@ -151,8 +155,6 @@ class ConsoleUI(
             println("Ошибка: нет текущей игры")
             return
         }
-        val moves = repository.getMoves(gameId)
-        val turnNumber = moves.size + 1
 
         // записываем ход
         val success = gameManager.recordMove(
@@ -203,10 +205,7 @@ class ConsoleUI(
             val playerState = entry.value
             val player = repository.getPlayer(playerId)
 
-            var playerName = ""
-            if (player != null) {
-                playerName = player.name
-            }
+            val playerName = player?.name ?: ""
 
             println("$playerName:")
             println("  позиция: ${playerState.position}")
@@ -219,20 +218,14 @@ class ConsoleUI(
             val winnerId = gameManager.getWinnerId()
             if (winnerId != null) {
                 val winner = repository.getPlayer(winnerId)
-                var winnerName = ""
-                if (winner != null) {
-                    winnerName = winner.name
-                }
+                val winnerName = winner?.name ?: ""
                 println("Игра закончена! Победитель: $winnerName")
             }
         } else {
             val currentId = gameManager.getCurrentPlayerId()
             if (currentId != null) {
                 val currentPlayer = repository.getPlayer(currentId)
-                var currentName = ""
-                if (currentPlayer != null) {
-                    currentName = currentPlayer.name
-                }
+                val currentName = currentPlayer?.name ?: ""
                 println("Сейчас ходит: $currentName")
             }
         }

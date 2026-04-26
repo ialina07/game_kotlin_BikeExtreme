@@ -4,31 +4,33 @@ import com.bikeextreme.domain.PlayerState
 
 class RestPhase : Phase {
     override fun execute(state: PlayerState, context: PhaseContext): PlayerState {
-        if (context.moveType != "rest")
+        if (context.moveType != "rest") {
             return state
+        }
 
         return when (context.restType) {
-            "energy" -> {
+            RestType.ENERGY -> {
                 var newEnergy = state.energy + 2
-                if (newEnergy > PlayerState.MAX_ENERGY)
+                if (newEnergy > PlayerState.MAX_ENERGY) {
                     newEnergy = PlayerState.MAX_ENERGY
+                }
                 state.copy(energy = newEnergy)
             }
-
-            "condition" -> {
+            RestType.CONDITION -> {
                 var newCondition = state.condition + 1
-                if (newCondition > PlayerState.MAX_CONDITION)
+                if (newCondition > PlayerState.MAX_CONDITION) {
                     newCondition = PlayerState.MAX_CONDITION
+                }
                 state.copy(condition = newCondition)
             }
-
-            "water" -> {
+            RestType.WATER -> {
                 var newWater = state.water + 3
-                if (newWater > PlayerState.MAX_WATER)
+                if (newWater > PlayerState.MAX_WATER) {
                     newWater = PlayerState.MAX_WATER
+                }
                 state.copy(water = newWater)
             }
-            else -> state
+            null -> state
         }
     }
 }

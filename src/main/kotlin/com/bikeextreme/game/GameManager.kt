@@ -1,6 +1,7 @@
 package com.bikeextreme.game
 
 import com.bikeextreme.domain.Game
+import com.bikeextreme.domain.GameStatus
 import com.bikeextreme.domain.Move
 import com.bikeextreme.domain.Player
 import com.bikeextreme.domain.PlayerState
@@ -38,7 +39,7 @@ class GameManager(
 
         val game = Game(
             playerIds = playerIds,
-            status = "IN_PROGRESS"
+            status = GameStatus.IN_PROGRESS
         )
         repository.saveGame(game)
         currentGameId = game.id
@@ -67,7 +68,7 @@ class GameManager(
         dice1: Int,
         dice2: Int,
         moveType: String,
-        restType: String?,
+        restType: RestType?,
         stateBefore: PlayerState
     ): Boolean {
         if (isGameOver) {
@@ -114,7 +115,7 @@ class GameManager(
             return false
         }
 
-        // получаем ожидаемое  состояние из валидатора
+        // получаем ожидаемое состояние из валидатора
         val expectedState = moveValidator.getExpectedState(tempMove, snapshots)
         if (expectedState == null) {
             println("Ошибка: не удалось вычислить состояние")
@@ -139,12 +140,6 @@ class GameManager(
             val winner = repository.getPlayer(playerId)
             println("Победитель: ${winner?.name}")
             return true
-        }
-
-        // ход следующего игрока
-        if (gameId == null) {
-            println("Ошибка: нет текущей игры")
-            return false
         }
 
         val game = repository.getGame(gameId)
