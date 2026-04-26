@@ -5,5 +5,6 @@ data class PhaseContext(
     val dice2: Int,
     val moveType: String,
     val restType: String?,
-    var tailwindBonus: Boolean = false
+    var tailwindBonus: Boolean = false,
+    var movementBonus: Int = 0
 )

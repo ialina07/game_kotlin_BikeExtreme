@@ -9,6 +9,7 @@ import java.util.UUID
 
 class GameManager(
     private val moveValidator: MoveValidator,
+    private val phaseExecutor: PhaseExecutor,
     private val repository: GameRepository
 ) {
     private var currentGameId: UUID? = null
@@ -61,46 +62,86 @@ class GameManager(
         return game
     }
 
-    fun recordMove(move: Move): Boolean {
+    fun recordMove(
+        playerId: UUID,
+        dice1: Int,
+        dice2: Int,
+        moveType: String,
+        restType: String?,
+        stateBefore: PlayerState
+    ): Boolean {
         if (isGameOver) {
             println("Игра уже закончена")
             return false
         }
 
-        val playerId = currentPlayerId
-        if (playerId == null) {
+        val currentId = currentPlayerId
+        if (currentId == null) {
             println("Ошибка: нет текущего игрока")
             return false
         }
 
-        // валидация хода
-        val isValid = moveValidator.validate(
-            move = move,
-            currentPlayerId = playerId,
-            currentSnapshots = snapshots
+        if (playerId != currentId) {
+            println("Ошибка: сейчас ходит другой игрок")
+            return false
+        }
+
+        val gameId = currentGameId
+        if (gameId == null) {
+            println("Ошибка: нет текущей игры")
+            return false
+        }
+
+        // Временно создаём Move для валидации
+        val tempMove = Move(
+            gameId = gameId,
+            playerId = playerId,
+            turnNumber = currentTurn,
+            dice1 = dice1,
+            dice2 = dice2,
+            moveType = moveType,
+            restType = restType,
+            stateBefore = stateBefore,
+            stateAfter = stateBefore, // будет вычислено во время валидации
+            isValid = false
         )
+
+        // валидация хода
+        val isValid = moveValidator.validate(tempMove, currentId, snapshots)
 
         if (isValid == false) {
             println("Ход невалидный")
             return false
         }
 
+        // получаем ожидаемое  состояние из валидатора
+        val expectedState = moveValidator.getExpectedState(tempMove, snapshots)
+        if (expectedState == null) {
+            println("Ошибка: не удалось вычислить состояние")
+            return false
+        }
+
+        // создаем окончательный Move
+        val move = tempMove.copy(
+            stateAfter = expectedState,
+            isValid = true
+        )
+
         repository.saveMove(move)
 
         // обновляем состояние игрока
-        snapshots[move.playerId] = move.stateAfter
+        snapshots[move.playerId] = expectedState
 
         // проверяем, не победил ли игрок
-        val positionAfter = move.stateAfter.position
-        if (positionAfter >= PlayerState.TRACK_LENGTH) {
+        if (expectedState.position >= PlayerState.TRACK_LENGTH) {
             isGameOver = true
-            winnerId = move.playerId
-            println("Победитель: ${move.playerId}")
+            winnerId = playerId
+            val winner = repository.getPlayer(playerId)
+            println("Победитель: ${winner?.name}")
             return true
         }
 
         // ход следующего игрока
-        val gameId = currentGameId
         if (gameId == null) {
             println("Ошибка: нет текущей игры")
             return false
@@ -113,7 +154,7 @@ class GameManager(
         }
 
         val playersInGame = game.playerIds
-        val currentIndex = playersInGame.indexOf(playerId)
+        val currentIndex = playersInGame.indexOf(currentId)
         val nextIndex = (currentIndex + 1) % playersInGame.size
         currentPlayerId = playersInGame[nextIndex]
         currentTurn = currentTurn + 1

@@ -12,33 +12,43 @@ class MoveValidator(
         currentPlayerId: UUID,
         currentSnapshots: Map<UUID, PlayerState>
     ) : Boolean {
-        // 1) проверка очереди
+        // проверка очереди
         if (move.playerId != currentPlayerId) {
             println("Ошибка: сейчас ходит другой игрок")
             return false
         }
 
-        // 2) берем состояние игрока до хода
-        val stateBefore = currentSnapshots[move.playerId] ?: return false
+        // проверяем, что состояние игрока существует
+        val stateBefore = currentSnapshots[move.playerId]
+        if (stateBefore == null) {
+            println("Ошибка: состояние игрока не найдено")
+            return false
+        }
 
-        // 3) создаем контекст
+        // проверяем, что stateBefore совпадает с тем, что пришло в move
+        if (stateBefore != move.stateBefore) {
+            println("Ошибка: состояние игрока не совпадает с текущим")
+            return false
+        }
+
+        return true
+    }
+
+    fun getExpectedState(
+        move: Move,
+        currentSnapshots: Map<UUID, PlayerState>
+    ): PlayerState? {
+        val stateBefore = currentSnapshots[move.playerId] ?: return null
+
         val context = PhaseContext(
             dice1 = move.dice1,
             dice2 = move.dice2,
             moveType = move.moveType,
             restType = move.restType,
-            tailwindBonus = false
+            tailwindBonus = false,
+            movementBonus = 0
         )
 
-        // 4) применяем фазы к состоянию до
-        val expectedState = phaseExecutor.executePhases(stateBefore, context)
-
-        // 5) сравниваем с состоянием после
-        if (expectedState != move.stateAfter) {
-            println("Ошибка: ожидалось $expectedState, получено ${move.stateAfter}")
-            return false
-        }
-
-        return true
+        return phaseExecutor.executePhases(stateBefore, context)
     }
 }

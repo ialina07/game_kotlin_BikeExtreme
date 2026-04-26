@@ -31,7 +31,7 @@ fun main() {
     val phaseExecutor = PhaseExecutor(phases)
     val moveValidator = MoveValidator(phaseExecutor)
     val repository = InMemoryGameRepository()
-    val gameManager = GameManager(moveValidator, repository)
+    val gameManager = GameManager(moveValidator, phaseExecutor, repository)
     val statisticsService = StatisticsService(repository)
     val replayService = ReplayService(repository, phaseExecutor)
 

@@ -8,6 +8,6 @@ class WeatherPhase(
 ) : Phase {
     override fun execute(state: PlayerState, context: PhaseContext): PlayerState {
         val weather = weatherFactory.getWeather(context.dice1)
-        return weather.apply(state)
+        return weather.apply(state, context)
     }
 }

@@ -5,7 +5,7 @@ import com.bikeextreme.domain.PlayerState
 class MovementPhase : Phase {
     override fun execute(state: PlayerState, context: PhaseContext): PlayerState {
         // движение = dice1 + dice2
-        var movement = context.dice1 + context.dice2
+        var movement = context.dice1 + context.dice2 + context.movementBonus
 
         // штраф за плохое состояние
         if (state.condition <= 2) {

@@ -139,8 +139,7 @@ class ConsoleUI(
         }
 
         // получаем текущее состояние игрока
-        val currentStateMap = gameManager.getCurrentState()
-        val currentState = currentStateMap[currentPlayerId]
+        val currentState = gameManager.getCurrentState()[currentPlayerId]
         if (currentState == null) {
             println("Ошибка: состояние игрока не найдено")
             return
@@ -155,24 +154,36 @@ class ConsoleUI(
         val moves = repository.getMoves(gameId)
         val turnNumber = moves.size + 1
 
-        // создаем объект Move
-        val move = Move(
-            gameId = gameId,
+        // записываем ход
+        val success = gameManager.recordMove(
             playerId = currentPlayerId,
-            turnNumber = turnNumber,
             dice1 = dice1,
             dice2 = dice2,
             moveType = moveType,
             restType = restType,
-            stateBefore = currentState,
-            stateAfter = currentState,
-            isValid = false
+            stateBefore = currentState
         )
-
-        val success = gameManager.recordMove(move)
 
         if (success) {
             println("Ход принят!")
+
+            // показываем новое состояние игрока
+            val newState = gameManager.getCurrentState()[currentPlayerId]
+            if (newState != null) {
+                println("  Новая позиция: ${newState.position}")
+                println("  Энергия: ${newState.energy}")
+                println("  Состояние велосипеда: ${newState.condition}")
+                println("  Вода: ${newState.water}")
+            }
+
+            // проверяем, не закончена ли игра
+            if (gameManager.isGameFinished()) {
+                val winnerId = gameManager.getWinnerId()
+                if (winnerId != null) {
+                    val winner = repository.getPlayer(winnerId)
+                    println("  ПОБЕДИТЕЛЬ: ${winner?.name}  ")
+                }
+            }
         } else {
             println("Ход НЕ принят!")
         }
