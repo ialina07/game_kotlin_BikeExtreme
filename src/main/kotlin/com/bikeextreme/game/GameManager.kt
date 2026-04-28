@@ -137,6 +137,14 @@ class GameManager(
         if (expectedState.position >= PlayerState.TRACK_LENGTH) {
             isGameOver = true
             winnerId = playerId
+
+            // Обновляем игру в репозитории
+            val game = repository.getGame(gameId)
+            if (game != null) {
+                val updatedGame = game.copy(winnerId = playerId, isFinished = true)
+                repository.saveGame(updatedGame)
+            }
+
             val winner = repository.getPlayer(playerId)
             println("Победитель: ${winner?.name}")
             return true

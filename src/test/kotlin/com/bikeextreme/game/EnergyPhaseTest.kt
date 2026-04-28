@@ -42,18 +42,23 @@ class EnergyPhaseTest {
 
     @Test
     fun testHalfPositionWhenNoEnergy() {
-        val phase = EnergyPhase()
+        val movementPhase = MovementPhase()
+        val energyPhase = EnergyPhase()
+
         val state = PlayerState(energy = 0, position = 10)
         val context = PhaseContext(
-            dice1 = 1,
-            dice2 = 1,
+            dice1 = 6,
+            dice2 = 4,
             moveType = "move",
             restType = null,
             movementBonus = 0
         )
+        // применяем MovementPhase
+        val afterMove = movementPhase.execute(state, context)
+        // применяем EnergyPhase
+        val result = energyPhase.execute(afterMove, context)
 
-        val result = phase.execute(state, context)
         assertEquals(0, result.energy)
-        assertEquals(5, result.position)
+        assertEquals(15, result.position) // 20 - 10 / 2
     }
 }

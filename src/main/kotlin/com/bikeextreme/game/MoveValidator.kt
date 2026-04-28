@@ -25,12 +25,6 @@ class MoveValidator(
             return false
         }
 
-        // проверяем, что stateBefore совпадает с тем, что пришло в move
-        if (stateBefore != move.stateBefore) {
-            println("Ошибка: состояние игрока не совпадает с текущим")
-            return false
-        }
-
         return true
     }
 
