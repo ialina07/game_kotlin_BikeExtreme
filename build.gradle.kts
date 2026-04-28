@@ -1,8 +1,9 @@
 plugins {
-    kotlin("jvm") version "1.9.24"
+    kotlin("jvm") version "1.9.22"
+    application
 }
 
-group = "org.example"
+group = "com.bikeextreme"
 version = "1.0-SNAPSHOT"
 
 repositories {
@@ -10,19 +11,20 @@ repositories {
 }
 
 dependencies {
-    // Kotlin
     implementation(kotlin("stdlib"))
-
-    // JUnit 5
-    testImplementation(platform("org.junit:junit-bom:5.10.2"))
-    testImplementation("org.junit.jupiter:junit-jupiter")
-    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+    testImplementation("junit:junit:4.13.2")
 }
 
 tasks.test {
-    useJUnitPlatform()
+    testLogging {
+        events("passed", "skipped", "failed")
+    }
 }
 
-kotlin {
-    jvmToolchain(17)
+application {
+    mainClass.set("com.bikeextreme.MainKt")
+}
+
+tasks.withType<JavaExec> {
+    standardInput = System.`in`
 }
