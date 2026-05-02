@@ -79,6 +79,11 @@ class ConsoleUI(
      }
 
     private fun inputMove() {
+        if (gameManager.isGameFinished()) {
+            println("Игра уже закончена. Создайте новую игру (команда 1)")
+            return
+        }
+
         if (currentGameId == null) {
             println("Ошибка: сначала создайте игру (команда 1)")
             return

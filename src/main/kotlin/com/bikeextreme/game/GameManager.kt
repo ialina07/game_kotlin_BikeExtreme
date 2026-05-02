@@ -21,21 +21,20 @@ class GameManager(
     private var winnerId: UUID? = null
 
     fun startGame(playerNames: List<String>): Game {
-        val players  = mutableListOf<Player>()
-        for (name in playerNames) {
-            val player = Player(name = name)
-            players.add(player)
+        // получаем существующих игроков или создаем новых
+        val players = playerNames.map { name ->
+            repository.getPlayerByName(name) ?: Player(name = name)
         }
 
+        // сохраняем новых игроков (если они были созданы)
         for (player in players) {
-            repository.savePlayer(player)
+            if (repository.getPlayer(player.id) == null) {
+                repository.savePlayer(player)
+            }
         }
 
         // создаем игру
-        val playerIds = mutableListOf<UUID>()
-        for (player in players) {
-            playerIds.add(player.id)
-        }
+        val playerIds = players.map { it.id }
 
         val game = Game(
             playerIds = playerIds,
@@ -93,7 +92,7 @@ class GameManager(
             return false
         }
 
-        // Временно создаём Move для валидации
+        // валидация входных данных
         val tempMove = Move(
             gameId = gameId,
             playerId = playerId,
@@ -103,42 +102,50 @@ class GameManager(
             moveType = moveType,
             restType = restType,
             stateBefore = stateBefore,
-            stateAfter = stateBefore, // будет вычислено во время валидации
+            stateAfter = stateBefore, // будет вычислено после валидации
             isValid = false
         )
 
-        // валидация хода
-        val isValid = moveValidator.validate(tempMove, currentId, snapshots)
-
-        if (isValid == false) {
+        if (!moveValidator.validate(tempMove, currentId, snapshots)) {
             println("Ход невалидный")
             return false
         }
 
-        // получаем ожидаемое состояние из валидатора
-        val expectedState = moveValidator.getExpectedState(tempMove, snapshots)
-        if (expectedState == null) {
-            println("Ошибка: не удалось вычислить состояние")
-            return false
-        }
+        // вычисляем ожидаемое состояние через PhaseExecutor
+        val context = PhaseContext(
+            dice1 = dice1,
+            dice2 = dice2,
+            moveType = moveType,
+            restType = restType,
+            movementBonus = 0,
+        )
+        val expectedState = phaseExecutor.executePhases(stateBefore, context)
 
-        // создаем окончательный Move
-        val move = tempMove.copy(
+        // создаём окончательный Move с вычисленным состоянием
+        val move = Move(
+            gameId = gameId,
+            playerId = playerId,
+            turnNumber = currentTurn,
+            dice1 = dice1,
+            dice2 = dice2,
+            moveType = moveType,
+            restType = restType,
+            stateBefore = stateBefore,
             stateAfter = expectedState,
             isValid = true
         )
 
+        // сохраняем ход
         repository.saveMove(move)
-
         // обновляем состояние игрока
-        snapshots[move.playerId] = expectedState
+        snapshots[playerId] = expectedState
 
         // проверяем, не победил ли игрок
         if (expectedState.position >= PlayerState.TRACK_LENGTH) {
             isGameOver = true
             winnerId = playerId
 
-            // Обновляем игру в репозитории
+            // обновляем игру в репозитории
             val game = repository.getGame(gameId)
             if (game != null) {
                 val updatedGame = game.copy(winnerId = playerId, isFinished = true)
@@ -160,8 +167,9 @@ class GameManager(
         val currentIndex = playersInGame.indexOf(currentId)
         val nextIndex = (currentIndex + 1) % playersInGame.size
         currentPlayerId = playersInGame[nextIndex]
-        currentTurn = currentTurn + 1
+        currentTurn++
 
+        println("Ход принят!")
         return true
     }
 

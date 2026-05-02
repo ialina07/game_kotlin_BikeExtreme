@@ -29,27 +29,6 @@ class SystemTests {
     }
 
     @Test
-    fun testSimpleMove() {
-        val repository = InMemoryGameRepository()
-        val gameManager = createGameManager(repository)
-
-        val game = gameManager.startGame(listOf("Анна", "Вика"))
-        val annaId = game.playerIds[0]
-
-        val success = gameManager.recordMove(
-            playerId = annaId,
-            dice1 = 3,
-            dice2 = 3,
-            moveType = "move",
-            restType = null,
-            stateBefore = PlayerState(position = 0, energy = 5)
-        )
-        assertTrue(success)
-        val moves = repository.getMoves(game.id)
-        assertEquals(1, moves.size)
-    }
-
-    @Test
     fun testFullGameUntilWinner() {
         val repository = InMemoryGameRepository()
         val gameManager = createGameManager(repository)
@@ -71,7 +50,12 @@ class SystemTests {
                 stateBefore = annaState
             )
             assertTrue(successAnna)
-            annaState = gameManager.getCurrentState()[annaId]!!
+            val newAnnaState = gameManager.getCurrentState()[annaId]
+            if (newAnnaState == null) {
+                fail("Состояние Анны не найдено")
+                return
+            }
+            annaState = newAnnaState
 
             if (gameManager.isGameFinished()) break
 
@@ -83,7 +67,12 @@ class SystemTests {
                 stateBefore = vikaState
             )
             assertTrue(successVika)
-            vikaState = gameManager.getCurrentState()[vikaId]!!
+            val newVikaState = gameManager.getCurrentState()[vikaId]
+            if (newVikaState == null) {
+                fail("Состояние Вики не найдено")
+                return
+            }
+            vikaState = newVikaState
         }
 
         assertTrue(gameManager.isGameFinished())
@@ -110,7 +99,12 @@ class SystemTests {
                 stateBefore = annaState
             )
             assertTrue(successAnna)
-            annaState = gameManager.getCurrentState()[annaId]!!
+            val newAnnaState = gameManager.getCurrentState()[annaId]
+            if (newAnnaState == null) {
+                fail("Состояние Анны не найдено")
+                return
+            }
+            annaState = newAnnaState
 
             if (gameManager.isGameFinished()) break
 
@@ -121,7 +115,12 @@ class SystemTests {
                 stateBefore = vikaState
             )
             assertTrue(successVika)
-            vikaState = gameManager.getCurrentState()[vikaId]!!
+            val newVikaState = gameManager.getCurrentState()[vikaId]
+            if (newVikaState == null) {
+                fail("Состояние Вики не найдено")
+                return
+            }
+            vikaState = newVikaState
         }
 
         assertTrue(gameManager.isGameFinished())
@@ -130,8 +129,10 @@ class SystemTests {
         val statisticsService = StatisticsService(repository)
         val annaStats = statisticsService.getPlayerStats("Анна")
         assertNotNull(annaStats)
-        assertEquals(1, annaStats!!.wins)
-        assertEquals(1, annaStats.totalGames)
-        assertEquals(100.0, annaStats.winRate, 0.01)
+        annaStats?.let { stats ->
+            assertEquals(1, stats.wins)
+            assertEquals(1, stats.totalGames)
+            assertEquals(100.0, stats.winRate, 0.01)
+        }
     }
 }

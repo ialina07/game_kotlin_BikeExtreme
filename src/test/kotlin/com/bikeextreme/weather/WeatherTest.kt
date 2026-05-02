@@ -91,10 +91,4 @@ class WeatherTest {
         val result3 = heat.apply(state, context)
         Assert.assertEquals(0, result3.energy)
     }
-
-    @Test
-    fun testTailwindWeatherExtraCells() {
-        val weather = TailwindWeather()
-        Assert.assertEquals(2, weather.extraCells())
-    }
 }

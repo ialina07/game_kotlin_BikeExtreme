@@ -15,14 +15,6 @@ class EnergyPhase : Phase {
             newEnergy = 0
         }
 
-        // корректировка позиции, если энергии не было
-        val newPosition = if (state.energy == 0) {
-            // возвращаемся на половину пройденного пути
-            state.position - (context.movementThisTurn / 2)
-        } else {
-            state.position
-        }
-
-        return state.copy(energy = newEnergy, position = newPosition)
+        return state.copy(energy = newEnergy)
     }
 }

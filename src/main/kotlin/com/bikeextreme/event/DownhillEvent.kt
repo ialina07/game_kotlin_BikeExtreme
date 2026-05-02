@@ -5,9 +5,7 @@ import com.bikeextreme.game.PhaseContext
 
 class DownhillEvent : Event {
     override fun apply(state: PlayerState, context: PhaseContext): PlayerState {
-        context.movementBonus += extraCells()
+        context.movementBonus += 2
         return state
     }
-
-    fun extraCells(): Int = 2
 }

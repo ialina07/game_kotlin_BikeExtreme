@@ -25,23 +25,16 @@ class MoveValidator(
             return false
         }
 
+        // проверяем корректность бросков кубиков и типа хода
+        if (move.dice1 !in 1..6 || move.dice2 !in 1..6) {
+            println("Ошибка: значения кубиков должны быть от 1 до 6")
+            return false
+        }
+        if (move.moveType !in listOf("move", "rest")) {
+            println("Ошибка: тип хода должен быть 'move' или 'rest'")
+            return false
+        }
+
         return true
-    }
-
-    fun getExpectedState(
-        move: Move,
-        currentSnapshots: Map<UUID, PlayerState>
-    ): PlayerState? {
-        val stateBefore = currentSnapshots[move.playerId] ?: return null
-
-        val context = PhaseContext(
-            dice1 = move.dice1,
-            dice2 = move.dice2,
-            moveType = move.moveType,
-            restType = move.restType,
-            movementBonus = 0
-        )
-
-        return phaseExecutor.executePhases(stateBefore, context)
     }
 }

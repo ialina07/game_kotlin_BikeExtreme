@@ -15,12 +15,13 @@ class MovementPhase : Phase {
         // штраф за плохое состояние
         if (state.condition <= 2) {
             movement = movement - 2
-            if (movement < 0) {
-                movement = 0
-            }
+            if (movement < 0) movement = 0
         }
 
-        context.movementThisTurn = movement
+        // если энергии нет — проезжаем только половину
+        if (state.energy == 0) {
+            movement /= 2
+        }
 
         var newPosition = state.position + movement
         if (newPosition > PlayerState.TRACK_LENGTH) {

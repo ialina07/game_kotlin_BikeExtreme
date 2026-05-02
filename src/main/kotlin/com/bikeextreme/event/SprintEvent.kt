@@ -7,14 +7,10 @@ class SprintEvent : Event {
     override fun apply(state: PlayerState, context: PhaseContext): PlayerState {
         // спринт требует энергию
         if (state.energy > 0) {
-            context.movementBonus += extraCells()
-            val newEnergy = state.energy - 1
-            val safeEnergy = if (newEnergy < 0) 0 else newEnergy
-            return state.copy(energy = safeEnergy)
+            context.movementBonus += 3
+            return state.copy(energy = state.energy - 1)
         }
         // если энергии нет, спринт не срабатывает
         return state
     }
-
-    fun extraCells(): Int = 3
 }

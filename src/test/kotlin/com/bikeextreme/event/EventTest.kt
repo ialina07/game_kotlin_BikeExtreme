@@ -134,16 +134,4 @@ class EventTest {
         assertEquals(0, result.energy)
         assertEquals(0, sprintContext.movementBonus)  // бонус не даётся
     }
-
-    @Test
-    fun testSprintEventExtraCells() {
-        val event = SprintEvent()
-        assertEquals(3, event.extraCells())
-    }
-
-    @Test
-    fun testDownhillEventExtraCells() {
-        val event = DownhillEvent()
-        assertEquals(2, event.extraCells())
-    }
 }
