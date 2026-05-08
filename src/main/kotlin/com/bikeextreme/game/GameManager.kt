@@ -160,7 +160,7 @@ class GameManager(
         val game = repository.getGame(gameId)
         if (game == null) {
             println("Ошибка: игра не найдена")
-                return false
+            return false
         }
 
         val playersInGame = game.playerIds
@@ -187,4 +187,9 @@ class GameManager(
     fun isGameFinished(): Boolean = isGameOver
 
     fun getWinnerId(): UUID? = winnerId
+
+    fun getPlayer(playerId: UUID): Player? = repository.getPlayer(playerId)
+
+    fun getCurrentGameId(): UUID? = currentGameId
+
 }
