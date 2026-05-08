@@ -1,6 +1,6 @@
 # Архитектура BikeExtreme 
 
-`Диаграмма классов в файле architecture.jpg`
+`Диаграмма классов в файле architecture2.jpg`
 
 ## Описание архитектуры
 
@@ -14,6 +14,7 @@
 | **Бизнес-логика** | Правила игры, фазы хода, валидация | Phase, WeatherPhase, EventPhase, MovementPhase, EnergyPhase, RestPhase, PhaseExecutor, PhaseContext, MoveValidator |
 | **Бизнес-логика (периферия)** | Статистика и рейтинги | StatisticsService |
 | **UI слой** | Ввод и вывод в консоли | ConsoleUI |
+| UI слой (графический) | Графический интерфейс | MainFrame, GameTableModel, CreateGameDialog, MoveDialog, StatsDialog, ReplayDialog |
 | **Хранение** | Сохранение и загрузка данных | GameRepository (интерфейс), InMemoryGameRepository |
 
 ### 2. Основные сущности (data-классы)
@@ -25,7 +26,7 @@
 | **Move** | id, playerId, turnNumber, dice1, dice2, stateBefore, stateAfter, isValid | Один ход с состоянием до и после |
 | **PlayerState** | position, energy, condition, water | Ресурсы игрока в данный момент |
 
-### 3. UI слой (ConsoleUI)
+### 3. UI слои
 
 **ConsoleUI** — отвечает за ввод и вывод в консоли
 
@@ -40,6 +41,24 @@
 | showLeaderboard() | Показать таблицу лидеров |
 | showReplay() | Повторить партию |
 | exit() | Выход из программы |
+
+**Графический UI (Swing)**
+
+**MainFrame** — главное окно приложения. Содержит:
+- Таблицу с текущим состоянием игроков (позиция, энергия, состояние, вода)
+- Кнопки: Новая игра, Сделать ход, Обновить, Статистика, Таблица лидеров, Повтор партии
+
+**GameTableModel** — модель данных для таблицы (наследуется от AbstractTableModel)
+
+**Диалоги:**
+| Класс | Назначение |
+|-------|-----------|
+| CreateGameDialog | Ввод имён игроков для новой партии |
+| MoveDialog | Ввод dice1, dice2, типа хода и отдыха |
+| StatsDialog | Отображение статистики игрока |
+| ReplayDialog | Повтор партии |
+
+**Почему выбран Swing:** встроен в JDK, не требует дополнительных зависимостей.
 
 ### 4. Бизнес-логика (фазы хода)
 
@@ -123,12 +142,19 @@
 |-------|----------|-----------|
 | startGame() | playerNames | Создать новую партию |
 | recordMove() | playerId, dice1, dice2, moveType, restType, stateBefore | Записать ход (с валидацией) |
+| getCurrentState() | нет | Получить текущие ресурсы всех игроков |
+| getCurrentPlayerId() | нет | Получить ID игрока, который сейчас ходит |
+| isGameFinished() | нет | Проверить, закончена ли игра |
+| getWinnerId() | нет | Получить ID победителя (если игра закончена) |
+| getPlayer() | playerId | Получить игрока по ID |
+| getCurrentGameId() | нет | Получить ID текущей игры |
 
 **Что делает GameManager:**
 - Хранит текущее состояние (кто ходит, ресурсы игроков)
 - Вызывает MoveValidator для проверки хода
 - Сохраняет валидные ходы в репозиторий
 - Переключает ход на следующего игрока
+- Определяет победителя и завершает игру
 
 ### 9. Статистика (StatisticsService)
 
