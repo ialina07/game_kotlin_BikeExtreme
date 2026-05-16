@@ -20,6 +20,7 @@ import java.awt.FlowLayout
 import java.awt.GridLayout
 import javax.swing.*
 import javax.swing.border.EmptyBorder
+import javax.swing.JOptionPane
 
 class MainFrame : JFrame("BikeExtreme Judge") {
 
@@ -85,12 +86,6 @@ class MainFrame : JFrame("BikeExtreme Judge") {
                 alignmentX = CENTER_ALIGNMENT
             }
             add(titleLabel)
-
-            val statusPanel = JPanel().apply {
-                layout = FlowLayout(FlowLayout.CENTER)
-                add(JLabel("Статус:"))
-            }
-            add(statusPanel)
         }
     }
 
@@ -105,9 +100,6 @@ class MainFrame : JFrame("BikeExtreme Judge") {
             add(JButton("Сделать ход").apply {
                 addActionListener { makeMove() }
             })
-            add(JButton("Обновить").apply {
-                addActionListener { refreshState() }
-            })
             add(JButton("Статистика").apply {
                 addActionListener { showStats() }
             })
@@ -121,6 +113,15 @@ class MainFrame : JFrame("BikeExtreme Judge") {
     }
 
     private fun createGame() {
+        if (gameManager.getCurrentGameId() != null && !gameManager.isGameFinished()) {
+            val confirm = JOptionPane.showConfirmDialog(
+                this,
+                "Текущая игра не закончена. Начать новую? (текущая игра будет потеряна)",
+                "Подтверждение",
+                JOptionPane.YES_NO_OPTION
+            )
+            if (confirm != JOptionPane.YES_OPTION) return
+        }
         val dialog = CreateGameDialog(this, gameManager)
         dialog.isVisible = true
         refreshState()
@@ -154,9 +155,13 @@ class MainFrame : JFrame("BikeExtreme Judge") {
 
     private fun refreshState() {
         tableModel.refresh()
-        val currentPlayer = gameManager.getCurrentPlayerId()?.let {
-            gameManager.getPlayer(it)?.name
-        } ?: "—"
+        val currentPlayer = if (gameManager.isGameFinished()) {
+            "—"
+        } else {
+            gameManager.getCurrentPlayerId()?.let {
+                gameManager.getPlayer(it)?.name
+            } ?: "—"
+        }
         title = "BikeExtreme — Ходит: $currentPlayer"
     }
 
@@ -184,14 +189,6 @@ class MainFrame : JFrame("BikeExtreme Judge") {
     }
 
     private fun showReplay() {
-        val gameIdStr = JOptionPane.showInputDialog(this, "Введите ID партии:")
-        if (gameIdStr.isNullOrBlank()) return
-        val gameId = try {
-            java.util.UUID.fromString(gameIdStr)
-        } catch (e: Exception) {
-            JOptionPane.showMessageDialog(this, "Неверный формат ID", "Ошибка", JOptionPane.ERROR_MESSAGE)
-            return
-        }
-        ReplayDialog(this, replayService, repository).isVisible = true
+        showReplayDialog(this, replayService, repository)
     }
 }

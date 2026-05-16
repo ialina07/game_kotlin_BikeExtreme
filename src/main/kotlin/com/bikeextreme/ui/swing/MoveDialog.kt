@@ -108,18 +108,6 @@ class MoveDialog(
         if (success) {
             val newState = gameManager.getCurrentState()[currentPlayerId]
             JOptionPane.showMessageDialog(this, "Ход принят!\nНовая позиция: ${newState?.position}")
-            // проверяем победу
-            if (gameManager.isGameFinished()) {
-                val winnerId = gameManager.getWinnerId()
-                val winnerName = winnerId?.let { gameManager.getPlayer(it)?.name } ?: "Неизвестный"
-                JOptionPane.showMessageDialog(
-                    this,
-                    "Победитель: $winnerName!",
-                    "Игра закончена",
-                    JOptionPane.INFORMATION_MESSAGE
-                )
-            }
-
             dispose()
         } else {
             JOptionPane.showMessageDialog(this, "Ход невалидный!", "Ошибка", JOptionPane.ERROR_MESSAGE)

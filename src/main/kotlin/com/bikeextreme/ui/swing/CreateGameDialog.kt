@@ -19,7 +19,7 @@ class CreateGameDialog(
 
     private fun setupUI() {
         layout = BorderLayout()
-        setSize(350, 250)
+        setSize(400, 120)
         setLocationRelativeTo(parent)
 
         val inputPanel = JPanel().apply {

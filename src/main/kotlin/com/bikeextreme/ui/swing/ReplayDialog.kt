@@ -3,13 +3,24 @@ package com.bikeextreme.ui.swing
 import com.bikeextreme.statistics.ReplayService
 import com.bikeextreme.repository.GameRepository
 import java.awt.BorderLayout
-import java.awt.Dimension
 import javax.swing.*
+
+fun showReplayDialog(parent: JFrame, replayService: ReplayService, repository: GameRepository) {
+    val games = repository.getAllGames()
+        .filter { it.isFinished }
+        .distinctBy { it.id }
+    if (games.isEmpty()) {
+        JOptionPane.showMessageDialog(parent, "Нет завершённых партий для повтора")
+        return
+    }
+    ReplayDialog(parent, replayService, repository, games).isVisible = true
+}
 
 class ReplayDialog(
     private val parent: JFrame,
     private val replayService: ReplayService,
-    private val repository: GameRepository
+    private val repository: GameRepository,
+    private val games: List<com.bikeextreme.domain.Game>
 ) : JDialog(parent, "Повтор партии", true) {
 
     private val textArea = JTextArea()
@@ -37,28 +48,34 @@ class ReplayDialog(
     }
 
     private fun showGameSelector() {
-        val games = repository.getAllGames().filter { it.isFinished }
-        if (games.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Нет завершённых партий для повтора")
-            dispose()
-            return
+        val listModel = DefaultListModel<GameItem>()
+        games.forEach { game ->
+            val players = game.playerIds.mapNotNull { repository.getPlayer(it)?.name }.joinToString(", ")
+            val winner = game.winnerId?.let { repository.getPlayer(it)?.name } ?: "не определён"
+            val displayText = "$players | Победитель: $winner"
+            listModel.addElement(GameItem(game.id, displayText))
         }
 
-        val gameOptions = games.map { it.id.toString() }.toTypedArray()
-        val selected = JOptionPane.showInputDialog(
-            this,
-            "Выберите партию для повтора:",
-            "Повтор партии",
-            JOptionPane.QUESTION_MESSAGE,
-            null,
-            gameOptions,
-            gameOptions[0]
-        )
+        val gameList = JList(listModel)
+        gameList.selectionMode = ListSelectionModel.SINGLE_SELECTION
 
-        if (selected != null) {
-            val gameId = java.util.UUID.fromString(selected.toString())
-            loadReplay(gameId)
-            title = "Повтор партии: $gameId"
+        val optionPane = JOptionPane(
+            JScrollPane(gameList),
+            JOptionPane.QUESTION_MESSAGE,
+            JOptionPane.OK_CANCEL_OPTION
+        )
+        val dialog = optionPane.createDialog(this, "Выберите партию")
+        dialog.isVisible = true
+
+        if (optionPane.value == JOptionPane.OK_OPTION) {
+            val selected = gameList.selectedValue
+            if (selected != null) {
+                loadReplay(selected.gameId)
+                title = "Повтор партии: ${selected.gameId}"
+            } else {
+                JOptionPane.showMessageDialog(this, "Партия не выбрана")
+                dispose()
+            }
         } else {
             dispose()
         }
@@ -75,5 +92,12 @@ class ReplayDialog(
         System.out.flush()
         System.setOut(oldOut)
         textArea.text = outputStream.toString()
+    }
+
+    private data class GameItem(
+        val gameId: java.util.UUID,
+        val displayText: String
+    ) {
+        override fun toString(): String = displayText
     }
 }
