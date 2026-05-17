@@ -189,6 +189,14 @@ class MainFrame : JFrame("BikeExtreme Judge") {
     }
 
     private fun showReplay() {
-        showReplayDialog(this, replayService, repository)
+        val games = repository.getAllGames()
+            .filter { it.isFinished }
+            .distinctBy { it.id }  // убираем дубликаты
+
+        if (games.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Нет завершённых партий для повтора")
+            return
+        }
+        ReplayDialog(this, replayService, repository, games).isVisible = true
     }
 }

@@ -5,29 +5,22 @@ import com.bikeextreme.repository.GameRepository
 import java.awt.BorderLayout
 import javax.swing.*
 
-fun showReplayDialog(parent: JFrame, replayService: ReplayService, repository: GameRepository) {
-    val games = repository.getAllGames()
-        .filter { it.isFinished }
-        .distinctBy { it.id }
-    if (games.isEmpty()) {
-        JOptionPane.showMessageDialog(parent, "Нет завершённых партий для повтора")
-        return
-    }
-    ReplayDialog(parent, replayService, repository, games).isVisible = true
-}
-
 class ReplayDialog(
     private val parent: JFrame,
     private val replayService: ReplayService,
     private val repository: GameRepository,
     private val games: List<com.bikeextreme.domain.Game>
-) : JDialog(parent, "Повтор партии", true) {
+) : JDialog(parent, "Повтор партии", false) {
 
     private val textArea = JTextArea()
 
     init {
-        setupUI()
-        showGameSelector()
+        if (showGameSelector()) {
+            setupUI()
+            isVisible = true
+        } else {
+            dispose()
+        }
     }
 
     private fun setupUI() {
@@ -47,7 +40,7 @@ class ReplayDialog(
         add(buttonPanel, BorderLayout.SOUTH)
     }
 
-    private fun showGameSelector() {
+    private fun showGameSelector(): Boolean {
         val listModel = DefaultListModel<GameItem>()
         games.forEach { game ->
             val players = game.playerIds.mapNotNull { repository.getPlayer(it)?.name }.joinToString(", ")
@@ -72,12 +65,13 @@ class ReplayDialog(
             if (selected != null) {
                 loadReplay(selected.gameId)
                 title = "Повтор партии: ${selected.gameId}"
+                return true
             } else {
                 JOptionPane.showMessageDialog(this, "Партия не выбрана")
-                dispose()
+                return false
             }
         } else {
-            dispose()
+            return false
         }
     }
 
