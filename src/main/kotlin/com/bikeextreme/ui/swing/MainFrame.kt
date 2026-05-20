@@ -11,7 +11,7 @@ import com.bikeextreme.game.RestPhase
 import com.bikeextreme.game.Phase
 import com.bikeextreme.weather.WeatherFactory
 import com.bikeextreme.event.EventFactory
-import com.bikeextreme.repository.InMemoryGameRepository
+import com.bikeextreme.repository.SQLiteGameRepository
 import com.bikeextreme.statistics.StatisticsService
 import com.bikeextreme.statistics.ReplayService
 import java.awt.BorderLayout
@@ -24,7 +24,7 @@ import javax.swing.JOptionPane
 
 class MainFrame : JFrame("BikeExtreme Judge") {
 
-    private val repository = InMemoryGameRepository()
+    private val repository = SQLiteGameRepository()
     private var gameManager: GameManager
     private var statisticsService: StatisticsService
     private var replayService: ReplayService
