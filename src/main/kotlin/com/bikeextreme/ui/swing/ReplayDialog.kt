@@ -44,8 +44,9 @@ class ReplayDialog(
         val listModel = DefaultListModel<GameItem>()
         games.forEach { game ->
             val players = game.playerIds.mapNotNull { repository.getPlayer(it)?.name }.joinToString(", ")
+            val dateStr = game.date.toString().replace("T", " ").take(19)
             val winner = game.winnerId?.let { repository.getPlayer(it)?.name } ?: "не определён"
-            val displayText = "$players | Победитель: $winner"
+            val displayText = "$dateStr | $players | Победитель: $winner"
             listModel.addElement(GameItem(game.id, displayText))
         }
 
