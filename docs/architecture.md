@@ -15,7 +15,7 @@
 | **Бизнес-логика (периферия)** | Статистика и рейтинги | StatisticsService |
 | **UI слой** | Ввод и вывод в консоли | ConsoleUI |
 | UI слой (графический) | Графический интерфейс | MainFrame, GameTableModel, CreateGameDialog, MoveDialog, StatsDialog, ReplayDialog |
-| **Хранение** | Сохранение и загрузка данных | GameRepository (интерфейс), InMemoryGameRepository |
+| **Хранение** | Сохранение и загрузка данных | GameRepository(интерфейс), SQLiteGameRepository |
 
 ### 2. Основные сущности (data-классы)
 
